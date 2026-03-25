@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>To Do List</title>
+</head>
+<body>
+
+  <h1>Lista de Tarefas</h1>
+
+  <div>
+    <input type="text" id="titulo" placeholder="Nome da tarefa">
+    <br><br>
+
+    <textarea id="resumo" placeholder="Resumo da tarefa"></textarea>
+    <br><br>
+
+    <input type="date" id="data">
+    <br><br>
+
+    <button onclick="adicionarTarefa()">Adicionar</button>
+  </div>
+
+  <h3>Total de tarefas: <span id="contador">0</span></h3>
+
+  <ul id="lista"></ul>
+
+  <script>
+    let contador = 0;
+
+    function atualizarContador() {
+      document.getElementById("contador").innerText = contador;
+    }
+
+    function adicionarTarefa() {
+      const titulo = document.getElementById("titulo").value.trim();
+      const resumo = document.getElementById("resumo").value.trim();
+      const data = document.getElementById("data").value;
+
+      if (titulo.length < 3) {
+        alert("A tarefa precisa ter pelo menos 3 caracteres.");
+        return;
+      }
+
+      if (resumo === "") {
+        alert("O resumo não pode estar vazio.");
+        return;
+      }
+
+      if (data === "") {
+        alert("Selecione uma data.");
+        return;
+      }
+
+      const li = document.createElement("li");
+
+      const texto = document.createElement("span");
+      texto.innerText = `${titulo} | ${resumo} | ${data}`;
+
+      const btnConcluir = document.createElement("button");
+      btnConcluir.innerText = "Concluir";
+      btnConcluir.onclick = function () {
+        texto.style.textDecoration = "line-through";
+      };
+
+      const btnRemover = document.createElement("button");
+      btnRemover.innerText = "Remover";
+      btnRemover.onclick = function () {
+        li.remove();
+        contador--;
+        atualizarContador();
+      };
+
+      li.appendChild(texto);
+      li.appendChild(document.createTextNode(" "));
+      li.appendChild(btnConcluir);
+      li.appendChild(document.createTextNode(" "));
+      li.appendChild(btnRemover);
+
+      document.getElementById("lista").appendChild(li);
+
+      contador++;
+      atualizarContador();
+
+      
+      document.getElementById("titulo").value = "";
+      document.getElementById("resumo").value = "";
+      document.getElementById("data").value = "";
+    }
+  </script>
+
+</body>
+</html>
