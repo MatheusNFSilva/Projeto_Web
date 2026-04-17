@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrinho de Compras Simples</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Carrinho de Compras</h1>
 
+    <section class="filtro">
+      <label for="filtroProdutos">Filtrar produtos:</label>
+      <select id="filtroProdutos">
+        <option value="todos">Todos</option>
+        <option value="ate50">Produtos até R$50</option>
+        <option value="acima50">Produtos acima de R$50</option>
+      </select>
+    </section>
+
+    <div class="layout">
+      <section class="bloco">
+        <h2>Produtos</h2>
+        <div id="listaProdutos"></div>
+      </section>
+
+      <section class="bloco">
+        <h2>Carrinho</h2>
+        <div id="listaCarrinho"></div>
+        <p id="totalCompra"><strong>Total:</strong> R$ 0,00</p>
+        <button id="limparCarrinho">Limpar carrinho</button>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
