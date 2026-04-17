@@ -28,14 +28,14 @@ filtroProdutos.addEventListener("change", (evento) => {
   listarProdutos();
 });
 
-// Limpa o carrinho inteiro de uma vez
+// Limpa o carrinho óbvio
 limparCarrinhoBtn.addEventListener("click", () => {
   carrinho = [];
   salvarCarrinho();
   atualizarCarrinho();
 });
 
-// Mostra os produtos na tela, já respeitando o filtro escolhido
+// Mostra os produtos na tela e mantém o filtro escolhido
 function listarProdutos() {
   listaProdutos.innerHTML = "";
 
@@ -59,7 +59,7 @@ function listarProdutos() {
   });
 }
 
-// Adiciona o produto no carrinho ou aumenta a quantidade se ele já existir
+// Adiciona o produto no carrinho e aumenta a quantidade se ele já existir
 function adicionarAoCarrinho(idProduto) {
   const produto = produtos.find((p) => p.id === idProduto);
   const itemExistente = carrinho.find((item) => item.id === idProduto);
@@ -95,7 +95,7 @@ function removerDoCarrinho(idProduto) {
   atualizarCarrinho();
 }
 
-// Atualiza o que aparece no carrinho e recalcula o total
+// Atualiza o que aparece no carrinho e calcula o preço
 function atualizarCarrinho() {
   listaCarrinho.innerHTML = "";
 
@@ -132,7 +132,7 @@ function atualizarCarrinho() {
   totalCompra.innerHTML = `<strong>Total:</strong> R$ ${total.toFixed(2)}`;
 }
 
-// Guarda o carrinho no navegador para não perder quando atualizar a página
+// Guarda o carrinho no navegador para quando voltar
 function salvarCarrinho() {
   localStorage.setItem("carrinho", JSON.stringify(carrinho));
 }
