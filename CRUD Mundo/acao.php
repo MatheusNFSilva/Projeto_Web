@@ -1,9 +1,11 @@
 <?php
 
-// Conexão
+// Conexão com o banco de dados.
 require_once "conexao.php";
+require_once "auth.php";
+verificarLogin();
 
-// Recebe a ação, o tipo e o ID enviados pelo formulário (POST) ou pelos links de excluir (GET)
+// Recebe a ação, o tipo e o ID enviados pelo formulário (POST) ou pelos links de excluir (GET).
 $acao = $_REQUEST["acao"] ?? "";
 $tipo = $_REQUEST["tipo"] ?? "";
 $id   = $_REQUEST["id"] ?? "";
@@ -15,7 +17,7 @@ try {
 
         if ($id != "") {
 
-            // Atualiza um continente
+            // Atualiza um continente.
             $sql = "UPDATE continentes
                     SET nome = ?,
                         populacao = ?,
@@ -37,7 +39,7 @@ try {
 
         } else {
 
-            // Cadastra um novo continente
+            // Cadastra um novo continente.
             $sql = "INSERT INTO continentes
                     (nome, populacao, area, total_paises)
                     VALUES (?, ?, ?, ?)";
@@ -61,7 +63,7 @@ try {
 
         if ($id != "") {
 
-            // Atualiza um governante
+            // Atualiza um governante.
             $sql = "UPDATE governantes
                     SET nome = ?,
                         partido_politico = ?,
@@ -87,7 +89,7 @@ try {
 
         } else {
 
-            // Cadastra um novo governante
+            // Cadastra um novo governante.
             $sql = "INSERT INTO governantes
                     (nome, partido_politico, data_nascimento, idade, data_inicio_mandato, data_fim_mandato)
                     VALUES (?, ?, ?, ?, ?, ?)";
@@ -115,7 +117,7 @@ try {
 
         if ($id != "") {
 
-            // Atualiza um país
+            // Atualiza um país.
             $sql = "UPDATE paises
                     SET nome = ?,
                         continente_id = ?,
@@ -147,7 +149,7 @@ try {
 
         } else {
 
-            // Cadastra um novo país
+            // Cadastra um novo país.
             $sql = "INSERT INTO paises
                     (nome, continente_id, populacao, area, idioma, governante_id, clima, regime_politico, moeda)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -207,7 +209,7 @@ try {
 
         } else {
 
-            // Cadastra uma nova cidade
+            // Cadastra uma nova cidade.
             $sql = "INSERT INTO cidades
                     (nome, pais_id, populacao, area, clima, governante_id, data_fundacao)
                     VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -255,13 +257,14 @@ try {
     }
 
 
-    // Retorna p página principal
+    // Retorna para a página principal.
     header("Location: index.php?msg=" . urlencode($mensagem ?? "Ação realizada."));
     exit;
 
 } catch (PDOException $erro) {
 
-    // Erro 23000 = violação de chave estrangeira (ex.: excluir um continente que ainda tem países vinculados, ou um país que tem cidades vinculadas)
+    // Erro 23000 = violação de chave estrangeira (ex.: excluir um continente
+    // que ainda tem países vinculados, ou um país que tem cidades vinculadas).
     if ($erro->getCode() == 23000) {
         $mensagem = "Não foi possível excluir: existem registros vinculados a este item.";
     } else {
