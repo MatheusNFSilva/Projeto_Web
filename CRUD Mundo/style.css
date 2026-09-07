@@ -223,3 +223,18 @@ th {
 #avisoSenha {
   font-size: .85rem;
 }
+
+.situacao-bloqueado {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.situacao-pendente {
+  color: #7a4a00;
+  font-weight: 600;
+}
+
+.situacao-ativo {
+  color: #1a7a1a;
+  font-weight: 600;
+}
