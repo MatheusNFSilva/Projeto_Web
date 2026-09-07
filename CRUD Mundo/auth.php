@@ -13,7 +13,7 @@ function verificarLogin() {
         exit;
     }
 
-    // Se este usuário tá no "primeiro acesso", ele é obrigado a trocar a
+    // Se este usuário tá no primeiro acesso, ele é obrigado a trocar a
     // senha antes de usar qualquer outra parte do sistema.
     $paginaAtual = basename($_SERVER['PHP_SELF']);
 
