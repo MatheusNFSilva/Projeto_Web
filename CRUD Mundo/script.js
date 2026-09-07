@@ -21,4 +21,29 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
+
+  // Tela de troca de senha, avisa se a nova senha e a confirmação são iguais.
+  const novaSenha = document.getElementById('novaSenha');
+  const confirmarSenha = document.getElementById('confirmarSenha');
+  const avisoSenha = document.getElementById('avisoSenha');
+
+  if (novaSenha && confirmarSenha && avisoSenha) {
+    const verificarSenhas = function () {
+      if (confirmarSenha.value === '') {
+        avisoSenha.textContent = '';
+        return;
+      }
+
+      if (novaSenha.value === confirmarSenha.value) {
+        avisoSenha.textContent = 'As senhas coincidem.';
+        avisoSenha.style.color = '#1a7a1a';
+      } else {
+        avisoSenha.textContent = 'As senhas não coincidem.';
+        avisoSenha.style.color = '#b3261e';
+      }
+    };
+
+    novaSenha.addEventListener('input', verificarSenhas);
+    confirmarSenha.addEventListener('input', verificarSenhas);
+  }
 });
