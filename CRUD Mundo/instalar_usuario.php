@@ -1,5 +1,5 @@
 <?php
-// serve só para criar o primeiro usuário do sistema.
+// serve só para criar o primeiro usuário do sistema
 
 require_once 'conexao.php';
 
