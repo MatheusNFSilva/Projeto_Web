@@ -155,3 +155,71 @@ th {
     width: 100%;
   }
 }
+
+/* ==========================================================
+   Login, troca de senha e mensagens de erro
+   ========================================================== */
+
+.usuario-logado {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: .9rem;
+}
+
+.usuario-logado a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.tela-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.caixa-login {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  padding: 28px;
+  width: min(100%, 380px);
+}
+
+.caixa-login h1 {
+  margin: 0 0 6px 0;
+  font-size: 1.4rem;
+  color: #1f3a5f;
+}
+
+.caixa-login > p {
+  margin: 0 0 20px 0;
+  color: #555;
+  font-size: .9rem;
+}
+
+.caixa-login p a {
+  color: #1f3a5f;
+}
+
+.mensagem.erro {
+  background: #fdeaea;
+  border: 1px solid #f3b4b4;
+  color: #8a1f1f;
+}
+
+.aviso-primeiro-acesso {
+  background: #fff4e0;
+  border: 1px solid #ffd699;
+  color: #7a4a00;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+
+#avisoSenha {
+  font-size: .85rem;
+}
