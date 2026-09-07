@@ -1,6 +1,4 @@
 <?php
-// Este arquivo cuida da parte de "sessão" do sistema.
-// Ele é incluído em toda página que só pode ser vista por quem já fez login.
 
 // Inicia a sessão, caso ainda não tenha sido iniciada.
 if (session_status() !== PHP_SESSION_ACTIVE) {
