@@ -231,6 +231,39 @@ try {
     }
 
 
+    // USUÁRIOS
+    if ($acao == "salvar" && $tipo == "usuario") {
+
+        $nome = $_POST["nome"] ?? "";
+        $login = trim($_POST["login"] ?? "");
+        $senha = $_POST["senha"] ?? "";
+        $confirmarSenha = $_POST["confirmar_senha"] ?? "";
+
+        if ($senha !== $confirmarSenha) {
+
+            $mensagem = "A senha e a confirmação de senha não são iguais.";
+
+        } elseif (strlen($senha) < 6) {
+
+            $mensagem = "A senha deve ter pelo menos 6 caracteres.";
+
+        } else {
+
+            // hash das senhas
+            $hash = password_hash($senha, PASSWORD_DEFAULT);
+
+            $sql = "INSERT INTO usuarios (nome, login, senha, primeiro_acesso) VALUES (?, ?, ?, 1)";
+            $comando = $pdo->prepare($sql);
+            $comando->execute([$nome, $login, $hash]);
+
+            $log = $pdo->prepare("INSERT INTO logs (usuario_id, login_tentado, acao) VALUES (?, ?, ?)");
+            $log->execute([$pdo->lastInsertId(), $login, "Novo usuário cadastrado"]);
+
+            $mensagem = "Usuário cadastrado com sucesso. Ele(a) vai precisar trocar a senha no primeiro acesso.";
+        }
+    }
+
+
     // EXCLUSÕES
     if ($acao == "deletar") {
 
@@ -263,10 +296,19 @@ try {
 
 } catch (PDOException $erro) {
 
-    // Erro 23000 = violação de chave estrangeira (ex.: excluir um continente
-    // que ainda tem países vinculados, ou um país que tem cidades vinculadas).
-    if ($erro->getCode() == 23000) {
+    // O MySQL manda o código de erro "de verdade" dentro de errorInfo[1].
+    $codigoMysql = $erro->errorInfo[1] ?? null;
+
+    if ($codigoMysql == 1451) {
+        // 1451 = violação de chave estrangeira (ex.: excluir um continente
+        // que ainda tem países vinculados, ou um país que tem cidades vinculadas).
         $mensagem = "Não foi possível excluir: existem registros vinculados a este item.";
+
+    } elseif ($codigoMysql == 1062) {
+        // 1062 = valor duplicado numa coluna única (ex.: tentar cadastrar
+        // um login que já existe, já que a coluna "login" é UNIQUE).
+        $mensagem = "Já existe um usuário cadastrado com esse login. Escolha outro.";
+
     } else {
         $mensagem = "Erro ao executar a ação: " . $erro->getMessage();
     }
