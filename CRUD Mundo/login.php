@@ -2,7 +2,7 @@
 require_once 'conexao.php';
 require_once 'auth.php';
 
-// Se o usuário já estiver logado, não precisa ver a tela de login de novo.
+// Se o usuário já estiver logado, não precisa ver a tela de login de novo
 if (isset($_SESSION['usuario_id'])) {
     header("Location: index.php");
     exit;
