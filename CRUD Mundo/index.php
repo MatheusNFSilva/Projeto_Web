@@ -26,6 +26,7 @@ $cidades = $pdo->query("
     LEFT JOIN governantes g ON g.id = ci.governante_id
     ORDER BY ci.nome
 ")->fetchAll();
+$usuarios = $pdo->query("SELECT * FROM usuarios ORDER BY nome")->fetchAll();
 
 // Edição simples por tipo
 $tipoEdicao = $_GET['tipo'] ?? '';
@@ -256,6 +257,30 @@ function valueOrEmpty($arr, $key) {
                     <button type="submit"><?= $tipoEdicao === 'cidade' ? 'Atualizar' : 'Cadastrar' ?></button>
                 </form>
             </article>
+
+            <article class="card">
+                <h2>Novo usuário</h2>
+                <form action="acao.php" method="post" class="formulario">
+                    <input type="hidden" name="acao" value="salvar">
+                    <input type="hidden" name="tipo" value="usuario">
+
+                    <label>Nome
+                        <input type="text" name="nome" required>
+                    </label>
+                    <label>Login
+                        <input type="text" name="login" required>
+                    </label>
+                    <label>Senha
+                        <input type="password" name="senha" id="novaSenha" required minlength="6">
+                    </label>
+                    <label>Confirmar senha
+                        <input type="password" name="confirmar_senha" id="confirmarSenha" required minlength="6">
+                        <small id="avisoSenha"></small>
+                    </label>
+
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </article>
         </section>
 
         <section class="lista">
@@ -369,6 +394,40 @@ function valueOrEmpty($arr, $key) {
                                     <a href="?tipo=cidade&id=<?= $ci['id'] ?>">Editar</a>
                                     <a href="acao.php?acao=deletar&tipo=cidade&id=<?= $ci['id'] ?>" class="excluir">Excluir</a>
                                 </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="lista">
+            <h2>Usuários cadastrados</h2>
+            <div class="tabela-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th><th>Login</th><th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($usuarios as $u): ?>
+                            <?php
+                                if ($u['bloqueado'] == 1) {
+                                    $situacaoTexto = 'Bloqueado';
+                                    $situacaoClasse = 'situacao-bloqueado';
+                                } elseif ($u['primeiro_acesso'] == 1) {
+                                    $situacaoTexto = 'Aguardando 1º acesso';
+                                    $situacaoClasse = 'situacao-pendente';
+                                } else {
+                                    $situacaoTexto = 'Ativo';
+                                    $situacaoClasse = 'situacao-ativo';
+                                }
+                            ?>
+                            <tr data-search="<?= h($u['nome'] . ' ' . $u['login']) ?>">
+                                <td><?= h($u['nome']) ?></td>
+                                <td><?= h($u['login']) ?></td>
+                                <td><span class="<?= $situacaoClasse ?>"><?= $situacaoTexto ?></span></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
