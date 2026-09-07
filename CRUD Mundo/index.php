@@ -1,5 +1,7 @@
 <?php
 require_once 'conexao.php';
+require_once 'auth.php';
+verificarLogin();
 
 function h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
@@ -78,6 +80,12 @@ function valueOrEmpty($arr, $key) {
 
         <div class="busca">
             <input type="text" id="searchGlobal" placeholder="Pesquisar país, cidade, continente ou governante...">
+        </div>
+
+        <div class="usuario-logado">
+            <span>Olá, <?= h($_SESSION['usuario_nome']) ?></span>
+            <a href="trocar_senha.php">Trocar senha</a>
+            <a href="logout.php">Sair</a>
         </div>
     </header>
 
