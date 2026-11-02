@@ -113,7 +113,19 @@ try {
     // PAÍSES
     if ($acao == "salvar" && $tipo == "pais") {
 
-        $governante = $_POST["governante_id"] != "" ? $_POST["governante_id"] : null;
+        $governante = ($_POST["governante_id"] ?? "") !== "" ? $_POST["governante_id"] : null;
+        $codigoIso = strtoupper(trim($_POST["codigo_iso"] ?? ""));
+        $codigoIso = $codigoIso !== "" ? $codigoIso : null;
+        $capital = trim($_POST["capital"] ?? "");
+        $capital = $capital !== "" ? $capital : null;
+        $regiao = trim($_POST["regiao"] ?? "");
+        $regiao = $regiao !== "" ? $regiao : null;
+        $subRegiao = trim($_POST["sub_regiao"] ?? "");
+        $subRegiao = $subRegiao !== "" ? $subRegiao : null;
+
+        if ($codigoIso !== null && !preg_match('/^[A-Z]{2}$/', $codigoIso)) {
+            throw new InvalidArgumentException("O código ISO deve ter exatamente duas letras.");
+        }
 
         if ($id != "") {
 
@@ -127,7 +139,11 @@ try {
                         governante_id = ?,
                         clima = ?,
                         regime_politico = ?,
-                        moeda = ?
+                        moeda = ?,
+                        codigo_iso = ?,
+                        capital = ?,
+                        regiao = ?,
+                        sub_regiao = ?
                     WHERE id = ?";
 
             $comando = $pdo->prepare($sql);
@@ -142,6 +158,10 @@ try {
                 $_POST["clima"],
                 $_POST["regime_politico"],
                 $_POST["moeda"],
+                $codigoIso,
+                $capital,
+                $regiao,
+                $subRegiao,
                 $id
             ]);
 
@@ -151,8 +171,9 @@ try {
 
             // Cadastra um novo país.
             $sql = "INSERT INTO paises
-                    (nome, continente_id, populacao, area, idioma, governante_id, clima, regime_politico, moeda)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    (nome, continente_id, populacao, area, idioma, governante_id, clima, regime_politico, moeda,
+                     codigo_iso, capital, regiao, sub_regiao)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $comando = $pdo->prepare($sql);
 
@@ -165,7 +186,11 @@ try {
                 $governante,
                 $_POST["clima"],
                 $_POST["regime_politico"],
-                $_POST["moeda"]
+                $_POST["moeda"],
+                $codigoIso,
+                $capital,
+                $regiao,
+                $subRegiao
             ]);
 
             $mensagem = "País cadastrado com sucesso.";
@@ -176,8 +201,18 @@ try {
     // CIDADES
     if ($acao == "salvar" && $tipo == "cidade") {
 
-        $governante = $_POST["governante_id"] != "" ? $_POST["governante_id"] : null;
-        $fundacao    = $_POST["data_fundacao"] != "" ? $_POST["data_fundacao"] : null;
+        $governante = ($_POST["governante_id"] ?? "") !== "" ? $_POST["governante_id"] : null;
+        $fundacao = ($_POST["data_fundacao"] ?? "") !== "" ? $_POST["data_fundacao"] : null;
+        $latitude = ($_POST["latitude"] ?? "") !== "" ? (float)$_POST["latitude"] : null;
+        $longitude = ($_POST["longitude"] ?? "") !== "" ? (float)$_POST["longitude"] : null;
+
+        if (($latitude === null) !== ($longitude === null)) {
+            throw new InvalidArgumentException("Informe latitude e longitude juntas para exibir a cidade no mapa.");
+        }
+        if (($latitude !== null && ($latitude < -90 || $latitude > 90)) ||
+            ($longitude !== null && ($longitude < -180 || $longitude > 180))) {
+            throw new InvalidArgumentException("As coordenadas informadas são inválidas.");
+        }
 
         if ($id != "") {
 
@@ -189,7 +224,9 @@ try {
                         area = ?,
                         clima = ?,
                         governante_id = ?,
-                        data_fundacao = ?
+                        data_fundacao = ?,
+                        latitude = ?,
+                        longitude = ?
                     WHERE id = ?";
 
             $comando = $pdo->prepare($sql);
@@ -202,6 +239,8 @@ try {
                 $_POST["clima"],
                 $governante,
                 $fundacao,
+                $latitude,
+                $longitude,
                 $id
             ]);
 
@@ -211,8 +250,8 @@ try {
 
             // Cadastra uma nova cidade.
             $sql = "INSERT INTO cidades
-                    (nome, pais_id, populacao, area, clima, governante_id, data_fundacao)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    (nome, pais_id, populacao, area, clima, governante_id, data_fundacao, latitude, longitude)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $comando = $pdo->prepare($sql);
 
@@ -223,7 +262,9 @@ try {
                 $_POST["area"],
                 $_POST["clima"],
                 $governante,
-                $fundacao
+                $fundacao,
+                $latitude,
+                $longitude
             ]);
 
             $mensagem = "Cidade cadastrada com sucesso.";
@@ -231,7 +272,7 @@ try {
     }
 
 
-    // USUÁRIOS
+    // USUÁRIOS (cadastro de quem pode acessar o sistema)
     if ($acao == "salvar" && $tipo == "usuario") {
 
         $nome = $_POST["nome"] ?? "";
@@ -249,7 +290,7 @@ try {
 
         } else {
 
-            // hash das senhas
+            // Nunca guardamos a senha "pura": ela sempre vira um hash antes de ir pro banco.
             $hash = password_hash($senha, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO usuarios (nome, login, senha, primeiro_acesso) VALUES (?, ?, ?, 1)";
@@ -294,6 +335,11 @@ try {
     header("Location: index.php?msg=" . urlencode($mensagem ?? "Ação realizada."));
     exit;
 
+} catch (InvalidArgumentException $erro) {
+
+    header("Location: index.php?msg=" . urlencode($erro->getMessage()));
+    exit;
+
 } catch (PDOException $erro) {
 
     // O MySQL manda o código de erro "de verdade" dentro de errorInfo[1].
@@ -305,9 +351,8 @@ try {
         $mensagem = "Não foi possível excluir: existem registros vinculados a este item.";
 
     } elseif ($codigoMysql == 1062) {
-        // 1062 = valor duplicado numa coluna única (ex.: tentar cadastrar
-        // um login que já existe, já que a coluna "login" é UNIQUE).
-        $mensagem = "Já existe um usuário cadastrado com esse login. Escolha outro.";
+        // 1062 = valor repetido em uma coluna UNIQUE (login ou código ISO).
+        $mensagem = "Já existe um registro com esse login ou código ISO. Confira os dados informados.";
 
     } else {
         $mensagem = "Erro ao executar a ação: " . $erro->getMessage();
