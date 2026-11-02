@@ -95,6 +95,21 @@ function valueOrEmpty($arr, $key) {
             <div class="mensagem"><?= h($msg) ?></div>
         <?php endif; ?>
 
+        <section class="lista importador-api">
+            <h2>Importar país pela REST Countries API</h2>
+            <p>Informe o nome de um país em inglês. O sistema consulta a API e salva as informações no banco de dados.</p>
+            <form action="importar_pais.php" method="post" class="formulario formulario-api">
+                <label>Nome do país
+                    <input type="text" name="pais" placeholder="Exemplo: Brazil" maxlength="100" required>
+                </label>
+                <button type="submit">Consultar e cadastrar</button>
+            </form>
+            <p class="atalhos-api">
+                <a href="listar_paises.php">Visualizar países cadastrados</a>
+                <a href="mapa.php">Abrir mapa de exemplo</a>
+            </p>
+        </section>
+
         <section class="cards">
             <article class="card">
                 <h2><?= $tipoEdicao === 'continente' ? 'Editar continente' : 'Novo continente' ?></h2>
@@ -159,6 +174,18 @@ function valueOrEmpty($arr, $key) {
 
                     <label>Nome
                         <input type="text" name="nome" required value="<?= $tipoEdicao === 'pais' ? valueOrEmpty($registro, 'nome') : '' ?>">
+                    </label>
+                    <label>Código ISO (2 letras, opcional)
+                        <input type="text" name="codigo_iso" maxlength="2" pattern="[A-Za-z]{2}" value="<?= $tipoEdicao === 'pais' ? valueOrEmpty($registro, 'codigo_iso') : '' ?>">
+                    </label>
+                    <label>Capital
+                        <input type="text" name="capital" maxlength="120" value="<?= $tipoEdicao === 'pais' ? valueOrEmpty($registro, 'capital') : '' ?>">
+                    </label>
+                    <label>Região
+                        <input type="text" name="regiao" maxlength="100" value="<?= $tipoEdicao === 'pais' ? valueOrEmpty($registro, 'regiao') : '' ?>">
+                    </label>
+                    <label>Sub-região
+                        <input type="text" name="sub_regiao" maxlength="100" value="<?= $tipoEdicao === 'pais' ? valueOrEmpty($registro, 'sub_regiao') : '' ?>">
                     </label>
 
                     <label>Continente
@@ -253,6 +280,12 @@ function valueOrEmpty($arr, $key) {
                     <label>Data de fundação
                         <input type="date" name="data_fundacao" value="<?= $tipoEdicao === 'cidade' ? valueOrEmpty($registro, 'data_fundacao') : '' ?>">
                     </label>
+                    <label>Latitude (opcional)
+                        <input type="number" name="latitude" step="0.0000001" min="-90" max="90" value="<?= $tipoEdicao === 'cidade' ? valueOrEmpty($registro, 'latitude') : '' ?>">
+                    </label>
+                    <label>Longitude (opcional)
+                        <input type="number" name="longitude" step="0.0000001" min="-180" max="180" value="<?= $tipoEdicao === 'cidade' ? valueOrEmpty($registro, 'longitude') : '' ?>">
+                    </label>
 
                     <button type="submit"><?= $tipoEdicao === 'cidade' ? 'Atualizar' : 'Cadastrar' ?></button>
                 </form>
@@ -345,14 +378,17 @@ function valueOrEmpty($arr, $key) {
                 <table>
                     <thead>
                         <tr>
-                            <th>Nome</th><th>Continente</th><th>População</th><th>Área</th><th>Idioma</th><th>Governante</th><th>Clima</th><th>Regime</th><th>Moeda</th><th>Ações</th>
+                            <th>Nome</th><th>ISO</th><th>Capital</th><th>Continente</th><th>Sub-região</th><th>População</th><th>Área</th><th>Idioma</th><th>Governante</th><th>Clima</th><th>Regime</th><th>Moeda</th><th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($paises as $p): ?>
-                            <tr data-search="<?= h($p['nome'] . ' ' . $p['continente_nome'] . ' ' . $p['idioma'] . ' ' . $p['moeda']) ?>">
+                            <tr data-search="<?= h($p['nome'] . ' ' . ($p['codigo_iso'] ?? '') . ' ' . ($p['capital'] ?? '') . ' ' . $p['continente_nome'] . ' ' . ($p['regiao'] ?? '') . ' ' . ($p['sub_regiao'] ?? '') . ' ' . $p['idioma'] . ' ' . $p['moeda']) ?>">
                                 <td><?= h($p['nome']) ?></td>
+                                <td><?= h($p['codigo_iso'] ?? '') ?></td>
+                                <td><?= h($p['capital'] ?? '') ?></td>
                                 <td><?= h($p['continente_nome']) ?></td>
+                                <td><?= h($p['sub_regiao'] ?? '') ?></td>
                                 <td><?= h($p['populacao']) ?></td>
                                 <td><?= h($p['area']) ?></td>
                                 <td><?= h($p['idioma']) ?></td>
@@ -377,7 +413,7 @@ function valueOrEmpty($arr, $key) {
                 <table>
                     <thead>
                         <tr>
-                            <th>Nome</th><th>País</th><th>População</th><th>Área</th><th>Clima</th><th>Governante</th><th>Fundação</th><th>Ações</th>
+                            <th>Nome</th><th>País</th><th>População</th><th>Área</th><th>Clima</th><th>Governante</th><th>Fundação</th><th>Latitude</th><th>Longitude</th><th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -390,7 +426,12 @@ function valueOrEmpty($arr, $key) {
                                 <td><?= h($ci['clima']) ?></td>
                                 <td><?= h($ci['governante_nome'] ?? 'Sem governante') ?></td>
                                 <td><?= h($ci['data_fundacao']) ?></td>
+                                <td><?= h($ci['latitude'] ?? '') ?></td>
+                                <td><?= h($ci['longitude'] ?? '') ?></td>
                                 <td class="acoes">
+                                    <?php if ($ci['latitude'] !== null && $ci['longitude'] !== null): ?>
+                                        <a href="mapa.php?cidade=<?= (int)$ci['id'] ?>">Mapa</a>
+                                    <?php endif; ?>
                                     <a href="?tipo=cidade&id=<?= $ci['id'] ?>">Editar</a>
                                     <a href="acao.php?acao=deletar&tipo=cidade&id=<?= $ci['id'] ?>" class="excluir">Excluir</a>
                                 </td>
